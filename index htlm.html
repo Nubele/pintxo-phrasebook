@@ -1,0 +1,2325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>¡Dime! 💬 Pintxo bar interactive phrasebook</title>
+  <script src="https://code.responsivevoice.org/responsivevoice.js"></script>
+  <style>
+    :root {
+      --green: #5a8f3d;
+      --red: #e52828;
+      --bg: #f8f4e8;
+      --card-bg: #ffffff;
+      --text: #333333;
+      --light-text: #666666;
+      --border: #e0e0e0;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .header {
+      background-color: var(--green);
+      color: white;
+      padding: 1.5rem 1rem;
+      text-align: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .header h1 {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+      color: white;
+    }
+
+    .header p {
+      font-style: italic;
+      opacity: 0.9;
+    }
+
+    .nav-tabs {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      padding: 1rem;
+      background-color: white;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-tab {
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      background-color: rgba(0,0,0,0.05);
+      color: var(--text);
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.2s;
+      border: 1px solid transparent;
+    }
+
+    .nav-tab.active,
+    .nav-tab:hover {
+      background-color: var(--green);
+      color: white;
+      transform: translateY(-2px);
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+
+    .section-title {
+      color: var(--green);
+      margin: 2rem 0 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--red);
+      font-size: 1.5rem;
+    }
+
+    .section-subtitle {
+      color: var(--red);
+      margin: 1.5rem 0 0.5rem;
+      font-size: 1.2rem;
+    }
+
+    .phrase-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    .number-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 0.5rem;
+      margin-top: 1.5rem;
+    }
+
+    @media (max-width: 600px) {
+      .phrase-grid,
+      .number-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .phrase-card {
+      background-color: var(--card-bg);
+      border-radius: 8px;
+      padding: 1rem;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      transition: transform 0.2s;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .number-card {
+      background-color: var(--card-bg);
+      border-radius: 8px;
+      padding: 0.8rem;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    .phrase-text {
+      flex-grow: 1;
+    }
+
+    .number-text {
+      flex-grow: 1;
+      font-size: 0.9rem;
+    }
+
+    .phrase-text strong,
+    .number-text strong {
+      color: var(--text);
+      font-size: 1.1rem;
+      display: block;
+      margin-bottom: 0.3rem;
+    }
+
+    .phrase-text em,
+    .number-text em {
+      color: var(--light-text);
+      font-size: 0.9rem;
+      display: block;
+      margin-bottom: 0.5rem;
+      font-style: normal;
+    }
+
+    .phrase-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 0.5rem;
+    }
+
+    .tags {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .tag {
+      font-size: 0.7rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 10px;
+      font-weight: 600;
+    }
+
+    .tag.spicy {
+      background-color: #fff3e0;
+      color: #e65100;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 20px;
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.3rem;
+    }
+
+    .btn-primary {
+      background-color: var(--green);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background-color: #4a7e32;
+      transform: translateY(-2px);
+    }
+
+    .btn-outline {
+      background-color: transparent;
+      border: 1px solid var(--green);
+      color: var(--green);
+    }
+
+    .btn-outline:hover {
+      background-color: rgba(90, 143, 61, 0.1);
+    }
+
+    .btn-sm {
+      padding: 0.3rem 0.7rem;
+      font-size: 0.8rem;
+    }
+
+    .play-btn {
+      background-color: var(--red);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .play-btn:hover {
+      background-color: #c41c1c;
+      transform: scale(1.1);
+    }
+
+    .practice-btn {
+      background-color: var(--green);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .practice-btn:hover {
+      transform: scale(1.1);
+      background-color: #4a7e32;
+    }
+
+    .footer {
+      text-align: center;
+      padding: 2rem 1rem;
+      margin-top: 2rem;
+      color: var(--light-text);
+      font-style: italic;
+      border-top: 1px solid var(--border);
+    }
+
+    .explanation-box {
+      background-color: var(--card-bg);
+      border-radius: 8px;
+      padding: 1rem;
+      margin: 1rem 0;
+      border-left: 4px solid var(--green);
+    }
+
+    .explanation-box p {
+      margin-bottom: 0.5rem;
+    }
+
+    .explanation-box strong {
+      color: var(--green);
+    }
+
+    /* Feedback styles */
+    .feedback-message {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 12px 24px;
+      border-radius: 8px;
+      color: white;
+      font-weight: bold;
+      z-index: 1000;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      animation: fadeInOut 3s forwards;
+      text-align: center;
+      max-width: 80%;
+    }
+
+    .feedback-success {
+      background-color: #4CAF50;
+    }
+
+    .feedback-error {
+      background-color: #f44336;
+    }
+
+    .feedback-info {
+      background-color: #2196F3;
+    }
+
+    @keyframes fadeInOut {
+      0% { opacity: 0; transform: translateX(-50%) translateY(20px); }
+      10% { opacity: 1; transform: translateX(-50%) translateY(0); }
+      90% { opacity: 1; transform: translateX(-50%) translateY(0); }
+      100% { opacity: 0; transform: translateX(-50%) translateY(-20px); visibility: hidden; }
+    }
+
+    /* Listening indicator */
+    .listening {
+      animation: pulse 1.5s infinite;
+      box-shadow: 0 0 0 0 rgba(90, 143, 61, 0.7);
+    }
+
+    @keyframes pulse {
+      0% {
+        box-shadow: 0 0 0 0 rgba(90, 143, 61, 0.7);
+      }
+      70% {
+        box-shadow: 0 0 0 10px rgba(90, 143, 61, 0);
+      }
+      100% {
+        box-shadow: 0 0 0 0 rgba(90, 143, 61, 0);
+      }
+    }
+
+    /* Compatibility warning */
+    .compatibility-warning {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #ff9800;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 5px;
+      font-size: 14px;
+      z-index: 1000;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+      text-align: center;
+      max-width: 90%;
+    }
+
+    /* Food image styles */
+    .food-image {
+      height: 150px;
+      overflow: hidden;
+      border-radius: 8px 8px 0 0;
+      margin: -1rem -1rem 1rem -1rem;
+      background-color: #f0f0f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .food-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <h1>¡Dime! 💬 Pintxo bar interactive phrasebook</h1>
+  </header>
+
+  <nav class="nav-tabs">
+    <a href="#" class="nav-tab active" data-target="drinks">🍷 Drinks</a>
+    <a href="#" class="nav-tab" data-target="pintxos">🍢 Pintxos & Raciones</a>
+    <a href="#" class="nav-tab" data-target="sweets">🍰 Sweets</a>
+    <a href="#" class="nav-tab" data-target="paying">💶 Paying</a>
+    <a href="#" class="nav-tab" data-target="phrases">🗣️ Useful Phrases</a>
+  </nav>
+
+  <div class="container">
+    <!-- Drinks Section -->
+    <div id="drinks" class="tab-section">
+      <h2 class="section-title">🍷 Drinks</h2>
+
+      <h3 class="section-subtitle">Alcoholic Drinks</h3>
+      <div class="phrase-grid">
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>una caña</strong>
+            <em>a beer (oo-nah KAH-nya)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('una caña')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('una caña')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>un zurito</strong>
+            <em>a small beer (oo-n thoo-REE-toh)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('un zurito')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('un zurito')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>un cañón</strong>
+            <em>a pint (oon kah-NYON)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('un cañón')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('un cañón')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>una cerveza rubia</strong>
+            <em>blonde beer (oo-nah sehr-BEH-tha ROO-byah)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('una cerveza rubia')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('una cerveza rubia')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>una cerveza tostada</strong>
+            <em>amber beer (oo-nah sehr-BEH-tha tohs-TAH-dah)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('una cerveza tostada')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('una cerveza tostada')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>un botellín de cerveza</strong>
+            <em>small bottled beer (oon boh-teh-YEEN de sehr-BEH-tha)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('un botellín de cerveza')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('un botellín de cerveza')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>un kalimotxo</strong>
+            <em>red wine + cola (kah-lee-MO-cho)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('un kalimotxo')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('un kalimotxo')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>un marianito</strong>
+            <em>small vermouth (mah-rya-NEE-toh)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('un marianito')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('un marianito')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>un vino blanco</strong>
+            <em>white wine (VEE-noh BLAN-koh)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('un vino blanco')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('un vino blanco')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>un txakoli</strong>
+            <em>Basque white wine (chah-ko-LEE)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('un txakoli')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('un txakoli')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>un crianza</strong>
+            <em>Rioja red wine (kree-AHN-thah)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('un crianza')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('un crianza')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>un patxarán</strong>
+            <em>Basque sloe berry liqueur (pah-cha-RAN)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('un patxarán')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('un patxarán')">🎤</button>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="section-subtitle">Non-Alcoholic Drinks</h3>
+      <div class="phrase-grid">
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>un zumo de naranja</strong>
+            <em>orange juice (THOO-moh deh nah-RAHN-hah)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('un zumo de naranja')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('un zumo de naranja')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>un mosto</strong>
+            <em>grape juice (MOHS-toh)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('un mosto')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('un mosto')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>un café</strong>
+            <em>coffee (kah-FEH)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('un café')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('un café')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>un té</strong>
+            <em>tea (TEH)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('un té')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('un té')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>una infusión</strong>
+            <em>herbal tea (een-foo-SYON)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('una infusión')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('una infusión')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>leche</strong>
+            <em>milk (LEH-cheh)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('leche')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('leche')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>un vaso de agua</strong>
+            <em>glass of water (BAH-so deh AH-gwah)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('un vaso de agua')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('un vaso de agua')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>una botella de agua</strong>
+            <em>bottle of water (boh-TEH-ya deh AH-gwah)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('una botella de agua')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('una botella de agua')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>agua con gas</strong>
+            <em>sparkling water (AH-gwah kohn GAHS)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('agua con gas')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('agua con gas')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>agua sin gas</strong>
+            <em>still water (AH-gwah seen GAHS)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('agua sin gas')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('agua sin gas')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>agua del grifo</strong>
+            <em>tap water (AH-gwah del GREE-fo)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('agua del grifo')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('agua del grifo')">🎤</button>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="section-subtitle">Modifiers</h3>
+      <div class="explanation-box">
+        <p><strong>Con / Sin</strong> mean "with / without" in Spanish.</p>
+      </div>
+
+      <div class="phrase-grid">
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>con hielo</strong>
+            <em>with ice (kohn YEH-lo)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('con hielo')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('con hielo')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>con azúcar</strong>
+            <em>with sugar (kohn ah-THOO-kar)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('con azúcar')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('con azúcar')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>con limón</strong>
+            <em>with lemon (kohn lee-MON)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('con limón')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('con limón')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>caliente</strong>
+            <em>hot (kah-LYEN-teh)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('caliente')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('caliente')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>frío</strong>
+            <em>cold (FREE-oh)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('frío')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('frío')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>del tiempo</strong>
+            <em>room temperature (del TYEM-poh)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('del tiempo')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('del tiempo')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>sin alcohol</strong>
+            <em>without alcohol (seen al-koh-OL)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('sin alcohol')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('sin alcohol')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>sin gluten</strong>
+            <em>without gluten (seen GLOO-ten)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('sin gluten')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('sin gluten')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>sin hielo</strong>
+            <em>without ice (seen YEH-lo)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('sin hielo')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('sin hielo')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>sin azúcar</strong>
+            <em>without sugar (seen ah-THOO-kar)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('sin azúcar')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('sin azúcar')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>sin leche</strong>
+            <em>without milk (seen LEH-cheh)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('sin leche')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('sin leche')">🎤</button>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="section-subtitle">Coffee Types</h3>
+      <div class="phrase-grid">
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>café solo</strong>
+            <em>black coffee (kah-FEH SO-loh)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('café solo')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('café solo')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>cortado</strong>
+            <em>coffee with a bit of milk (kor-TAH-doh)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('cortado')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('cortado')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>café con leche</strong>
+            <em>coffee with milk (kah-FEH kon LEH-cheh)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('café con leche')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('café con leche')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>americano</strong>
+            <em>black coffee with water (ah-meh-ree-KAH-noh)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('americano')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('americano')">🎤</button>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="section-subtitle">Ordering Phrases</h3>
+      <div class="phrase-grid">
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>Un café, por favor</strong>
+            <em>A coffee, please (oon kah-FEH por fah-VOR)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('Un café, por favor')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('Un café, por favor')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>Una caña, por favor</strong>
+            <em>A beer, please (oo-nah KAH-nya por fah-VOR)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('Una caña, por favor')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('Una caña, por favor')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>Dos zuritos, por favor</strong>
+            <em>Two small beers, please (doss thoo-REE-toss por fah-VOR)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('Dos zuritos, por favor')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('Dos zuritos, por favor')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>¿Me das un café?</strong>
+            <em>Can I have a coffee? (meh DAS oon kah-FEH)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('¿Me das un café?')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('¿Me das un café?')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>¿Me pones una caña?</strong>
+            <em>Can I have a beer? (meh POH-nes oo-nah KAH-nya)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('¿Me pones una caña?')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('¿Me pones una caña?')">🎤</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pintxos Section -->
+    <div id="pintxos" class="tab-section hidden">
+      <h2 class="section-title">🍢 Pintxos & Raciones</h2>
+
+      <div class="explanation-box">
+        <p><strong>Pintxos</strong> are small snacks typically served on bread, while <strong>raciones</strong> are larger plates meant for sharing.</p>
+        <p><strong>Tx:</strong> Words like pintxo, txangurro are pronounced with "ch" sound (from Basque language).</p>
+      </div>
+
+      <h3 class="section-subtitle">Pintxos</h3>
+      <div class="phrase-grid">
+        <div class="phrase-card">
+          <div class="food-image">
+            <img src="https://nubele.net/wp-content/uploads/2025/06/tortilla-patata.jpg" alt="pintxo de tortilla de patata">
+          </div>
+          <div class="phrase-text">
+            <strong>pintxo de tortilla de patata</strong>
+            <em>potato, egg, onion omelette (PEEN-cho deh tor-TEE-ya deh pah-TAH-ta)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('pintxo de tortilla de patata')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('pintxo de tortilla de patata')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="food-image">
+            <img src="https://nubele.net/wp-content/uploads/2025/06/gilda.jpg" alt="una Gilda">
+          </div>
+          <div class="phrase-text">
+            <strong>una Gilda</strong>
+            <em>anchovy, olive, chili, bread (HIL-da)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('una Gilda')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('una Gilda')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="food-image">
+            <img src="https://nubele.net/wp-content/uploads/2025/06/txangurro.jpg" alt="un pintxo de txangurro">
+          </div>
+          <div class="phrase-text">
+            <strong>un pintxo de txangurro</strong>
+            <em>spider crab, béchamel, paprika (PEEN-cho de chan-GOO-ro)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('un pintxo de txangurro')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('un pintxo de txangurro')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="food-image">
+            <img src="https://nubele.net/wp-content/uploads/2025/06/jamon-iberico.jpg" alt="un bocadillito de jamón ibérico">
+          </div>
+          <div class="phrase-text">
+            <strong>un bocadillito de jamón ibérico</strong>
+            <em>Iberian ham on bread (bo-ka-dee-YEE-to de ha-MON ee-BEH-ree-ko)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('un bocadillito de jamón ibérico')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('un bocadillito de jamón ibérico')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="food-image">
+            <img src="https://nubele.net/wp-content/uploads/2025/06/bonito-alegria-riojana.jpg" alt="un bocadillito de bonito con alegría riojana">
+          </div>
+          <div class="phrase-text">
+            <strong>un bocadillito de bonito con alegría riojana</strong>
+            <em>tuna + spicy chili (bo-NEE-to con ah-le-GREE-a ryo-HA-nah)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('un bocadillito de bonito con alegría riojana')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('un bocadillito de bonito con alegría riojana')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="food-image">
+            <img src="https://nubele.net/wp-content/uploads/2025/06/bonito-anchoa.jpg" alt="un pintxo de bonito con anchoa">
+          </div>
+          <div class="phrase-text">
+            <strong>un pintxo de bonito con anchoa</strong>
+            <em>tuna with anchovy (bo-NEE-to con an-CHO-a)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('un pintxo de bonito con anchoa')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('un pintxo de bonito con anchoa')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="food-image">
+            <img src="https://nubele.net/wp-content/uploads/2025/06/txistorra.jpg" alt="un bocadillito de txistorra">
+          </div>
+          <div class="phrase-text">
+            <strong>un bocadillito de txistorra</strong>
+            <em>Basque chorizo on bread (bo-ka-dee-YEE-to de chees-TOR-ra)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('un bocadillito de txistorra')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('un bocadillito de txistorra')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="food-image">
+            <img src="https://nubele.net/wp-content/uploads/2025/06/queso-idiazabal.jpg" alt="un bocadillito de queso idiazabal">
+          </div>
+          <div class="phrase-text">
+            <strong>un bocadillito de queso idiazabal</strong>
+            <em>Basque sheep cheese on bread (bo-ka-dee-YEE-to de KE-so ee-dee-ah-tha-BAL)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('un bocadillito de queso idiazabal')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('un bocadillito de queso idiazabal')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="food-image">
+            <img src="https://nubele.net/wp-content/uploads/2025/06/sandwhich-vegetal.jpg" alt="un sandwhich vegetal">
+          </div>
+          <div class="phrase-text">
+            <strong>un sandwhich vegetal</strong>
+            <em>vegetable sandwich (SAN-dweech beh-heh-TAL)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('un sandwhich vegetal')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('un sandwhich vegetal')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="food-image">
+            <img src="https://nubele.net/wp-content/uploads/2025/06/bonito-picante.jpg" alt="un sandwhich de bonito picante">
+          </div>
+          <div class="phrase-text">
+            <strong>un sandwhich de bonito picante</strong>
+            <em>spicy tuna sandwich (SAN-dweech de bo-NEE-to pee-KAN-te)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('un sandwhich de bonito picante')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('un sandwhich de bonito picante')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="food-image">
+            <img src="https://nubele.net/wp-content/uploads/2025/06/bacalao.jpg" alt="un pintxo de bacalao">
+          </div>
+          <div class="phrase-text">
+            <strong>un pintxo de bacalao</strong>
+            <em>cod pintxo (PEEN-cho de ba-ka-LAO)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('un pintxo de bacalao')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('un pintxo de bacalao')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="food-image">
+            <img src="https://nubele.net/wp-content/uploads/2025/06/merluza.jpg" alt="un pintxo de merluza">
+          </div>
+          <div class="phrase-text">
+            <strong>un pintxo de merluza</strong>
+            <em>hake pintxo (PEEN-cho de mer-LOO-tha)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('un pintxo de merluza')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('un pintxo de merluza')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="food-image">
+            <img src="https://nubele.net/wp-content/uploads/2025/06/champinon.jpg" alt="un pintxo de champiñón">
+          </div>
+          <div class="phrase-text">
+            <strong>un pintxo de champiñón</strong>
+            <em>mushroom pintxo (PEEN-cho de cham-pee-NYON)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('un pintxo de champiñón')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('un pintxo de champiñón')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="food-image">
+            <img src="https://nubele.net/wp-content/uploads/2025/06/bilbainito.jpg" alt="un bilbainito">
+          </div>
+          <div class="phrase-text">
+            <strong>un bilbainito</strong>
+            <em>egg, prawn, mayo (beel-bai-NEE-toh)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('un bilbainito')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('un bilbainito')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="food-image">
+            <img src="https://nubele.net/wp-content/uploads/2025/06/tigre.jpg" alt="un tigre">
+          </div>
+          <div class="phrase-text">
+            <strong>un tigre</strong>
+            <em>mussel + spicy sauce (TEE-greh)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('un tigre')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('un tigre')">🎤</button>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="section-subtitle">Raciones (sharing plates)</h3>
+      <div class="phrase-grid">
+        <div class="phrase-card">
+          <div class="food-image">
+            <img src="https://nubele.net/wp-content/uploads/2025/06/rabas.jpeg" alt="unas rabas">
+          </div>
+          <div class="phrase-text">
+            <strong>unas rabas</strong>
+            <em>battered squid (RAH-bas)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('unas rabas')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('unas rabas')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="food-image">
+            <img src="https://nubele.net/wp-content/uploads/2025/06/croquetas-jamon.jpeg" alt="unas croquetas de jamón">
+          </div>
+          <div class="phrase-text">
+            <strong>unas croquetas de jamón</strong>
+            <em>ham croquettes (kro-KE-tas de ha-MON)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('unas croquetas de jamón')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('unas croquetas de jamón')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="food-image">
+            <img src="https://nubele.net/wp-content/uploads/2025/06/croquetas-queso.jpeg" alt="unas croquetas de queso">
+          </div>
+          <div class="phrase-text">
+            <strong>unas croquetas de queso</strong>
+            <em>cheese croquettes (kro-KE-tas de KE-so)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('unas croquetas de queso')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('unas croquetas de queso')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="food-image">
+            <img src="https://nubele.net/wp-content/uploads/2025/06/croquetas-bacalao.jpeg" alt="unas croquetas de bacalao">
+          </div>
+          <div class="phrase-text">
+            <strong>unas croquetas de bacalao</strong>
+            <em>cod croquettes (kro-KE-tas de ba-ka-LAO)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('unas croquetas de bacalao')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('unas croquetas de bacalao')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="food-image">
+            <img src="https://nubele.net/wp-content/uploads/2025/06/croquetas-boletus.jpeg" alt="unas croquetas de boletus">
+          </div>
+          <div class="phrase-text">
+            <strong>unas croquetas de boletus</strong>
+            <em>mushroom croquettes (kro-KE-tas de bo-LE-tus)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('unas croquetas de boletus')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('unas croquetas de boletus')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="food-image">
+            <img src="https://nubele.net/wp-content/uploads/2025/06/txipirones-tinta.jpeg" alt="txipirones en su tinta">
+          </div>
+          <div class="phrase-text">
+            <strong>txipirones en su tinta</strong>
+            <em>squid in its ink (chee-pee-ROH-nes en soo TEEN-ta)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('txipirones en su tinta')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('txipirones en su tinta')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="food-image">
+            <img src="https://nubele.net/wp-content/uploads/2025/06/morcilla.jpeg" alt="morcilla">
+          </div>
+          <div class="phrase-text">
+            <strong>morcilla</strong>
+            <em>blood sausage (mor-THEE-ya)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('morcilla')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('morcilla')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="food-image">
+            <img src="https://nubele.net/wp-content/uploads/2025/06/chorizo-sidra.jpeg" alt="chorizo a la sidra">
+          </div>
+          <div class="phrase-text">
+            <strong>chorizo a la sidra</strong>
+            <em>chorizo cooked in cider (cho-REE-tho ah lah SEE-drah)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('chorizo a la sidra')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('chorizo a la sidra')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="food-image">
+            <img src="https://nubele.net/wp-content/uploads/2025/06/mejillones.jpg" alt="mejillones">
+          </div>
+          <div class="phrase-text">
+            <strong>mejillones</strong>
+            <em>mussels (meh-hee-YOH-nes)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('mejillones')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('mejillones')">🎤</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sweets Section -->
+    <div id="sweets" class="tab-section hidden">
+      <h2 class="section-title">🍰 Sweets</h2>
+
+      <div class="phrase-grid">
+        <div class="phrase-card">
+          <div class="food-image">
+            <img src="https://nubele.net/wp-content/uploads/2025/06/bollo-de-mantequilla.jpg" alt="un bollo de mantequilla">
+          </div>
+          <div class="phrase-text">
+            <strong>un bollo de mantequilla</strong>
+            <em>sweet butter bun (BOH-yo deh man-teh-KEE-ya)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('un bollo de mantequilla')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('un bollo de mantequilla')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="food-image">
+            <img src="https://nubele.net/wp-content/uploads/2025/06/carolina.jpg" alt="una carolina">
+          </div>
+          <div class="phrase-text">
+            <strong>una carolina</strong>
+            <em>meringue pastry (kah-ro-LEE-nah)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('una carolina')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('una carolina')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="food-image">
+            <img src="https://nubele.net/wp-content/uploads/2025/06/pantxineta.jpg" alt="una pantxineta">
+          </div>
+          <div class="phrase-text">
+            <strong>una pantxineta</strong>
+            <em>custard & almond pastry (pan-chee-NEH-tah)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('una pantxineta')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('una pantxineta')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="food-image">
+            <img src="https://nubele.net/wp-content/uploads/2025/06/pastel-arroz.jpg" alt="un pastel de arroz">
+          </div>
+          <div class="phrase-text">
+            <strong>un pastel de arroz</strong>
+            <em>custard tart (pahs-TEL deh ah-ROTH)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('un pastel de arroz')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('un pastel de arroz')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="food-image">
+            <img src="https://nubele.net/wp-content/uploads/2025/06/pastel-vasco.jpg" alt="un pastel vasco">
+          </div>
+          <div class="phrase-text">
+            <strong>un pastel vasco</strong>
+            <em>Basque cake with custard or cherry filling (pahs-TEL BAS-koh)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('un pastel vasco')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('un pastel vasco')">🎤</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Paying Section -->
+    <div id="paying" class="tab-section hidden">
+      <h2 class="section-title">💶 Paying</h2>
+
+      <div class="explanation-box">
+        <p><strong>🔢 How Spanish numbers work:</strong></p>
+        <p>Numbers 0 to 15 each have their own special word.</p>
+        <p>From 16 to 29, numbers are written as one word, and they secretly include the word "and" (in Spanish: y). For example:</p>
+        <p>dieciséis = diez + y + seis</p>
+        <p>veintidós = veinte + y + dos</p>
+        <p>From 30 and up, you start to see "y" written as a separate word:</p>
+        <p>treinta y uno (31)</p>
+        <p>cuarenta y cinco (45)</p>
+      </div>
+
+      <h3 class="section-subtitle">Payment Phrases</h3>
+      <div class="phrase-grid">
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>¿Cuánto es?</strong>
+            <em>How much is it? (KWAN-toh ehs)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('¿Cuánto es?')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('¿Cuánto es?')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>¿Puedo pagar con tarjeta o efectivo?</strong>
+            <em>Can I pay with card or cash? (PWEH-doh pah-GAR kon tar-HEH-ta oh eh-fek-TEE-bo)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('¿Puedo pagar con tarjeta o efectivo?')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('¿Puedo pagar con tarjeta o efectivo?')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>Cuando puedas, me cobras</strong>
+            <em>When you can, charge me (KWAN-doh PWEH-das meh KOH-bras)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('Cuando puedas, me cobras')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('Cuando puedas, me cobras')">🎤</button>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="section-subtitle">Numbers 0-10</h3>
+      <div class="number-grid">
+        <div class="number-card">
+          <div class="number-text">
+            <strong>cero</strong>
+            <em>0 (THEH-ro)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('cero')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('cero')">🎤</button>
+          </div>
+        </div>
+
+        <div class="number-card">
+          <div class="number-text">
+            <strong>uno</strong>
+            <em>1 (OO-no)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('uno')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('uno')">🎤</button>
+          </div>
+        </div>
+
+        <div class="number-card">
+          <div class="number-text">
+            <strong>dos</strong>
+            <em>2 (DOSS)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('dos')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('dos')">🎤</button>
+          </div>
+        </div>
+
+        <div class="number-card">
+          <div class="number-text">
+            <strong>tres</strong>
+            <em>3 (TRESS)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('tres')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('tres')">🎤</button>
+          </div>
+        </div>
+
+        <div class="number-card">
+          <div class="number-text">
+            <strong>cuatro</strong>
+            <em>4 (KWA-tro)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('cuatro')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('cuatro')">🎤</button>
+          </div>
+        </div>
+
+        <div class="number-card">
+          <div class="number-text">
+            <strong>cinco</strong>
+            <em>5 (SEEN-ko)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('cinco')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('cinco')">🎤</button>
+          </div>
+        </div>
+
+        <div class="number-card">
+          <div class="number-text">
+            <strong>seis</strong>
+            <em>6 (SAYS)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('seis')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('seis')">🎤</button>
+          </div>
+        </div>
+
+        <div class="number-card">
+          <div class="number-text">
+            <strong>siete</strong>
+            <em>7 (SYE-te)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('siete')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('siete')">🎤</button>
+          </div>
+        </div>
+
+        <div class="number-card">
+          <div class="number-text">
+            <strong>ocho</strong>
+            <em>8 (OH-cho)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('ocho')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('ocho')">🎤</button>
+          </div>
+        </div>
+
+        <div class="number-card">
+          <div class="number-text">
+            <strong>nueve</strong>
+            <em>9 (NWAY-be)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('nueve')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('nueve')">🎤</button>
+          </div>
+        </div>
+
+        <div class="number-card">
+          <div class="number-text">
+            <strong>diez</strong>
+            <em>10 (DYETH)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('diez')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('diez')">🎤</button>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="section-subtitle">Numbers 11-19</h3>
+      <div class="number-grid">
+        <div class="number-card">
+          <div class="number-text">
+            <strong>once</strong>
+            <em>11 (ON-the)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('once')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('once')">🎤</button>
+          </div>
+        </div>
+
+        <div class="number-card">
+          <div class="number-text">
+            <strong>doce</strong>
+            <em>12 (DO-the)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('doce')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('doce')">🎤</button>
+          </div>
+        </div>
+
+        <div class="number-card">
+          <div class="number-text">
+            <strong>trece</strong>
+            <em>13 (TRE-the)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('trece')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('trece')">🎤</button>
+          </div>
+        </div>
+
+        <div class="number-card">
+          <div class="number-text">
+            <strong>catorce</strong>
+            <em>14 (ka-TOR-the)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('catorce')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('catorce')">🎤</button>
+          </div>
+        </div>
+
+        <div class="number-card">
+          <div class="number-text">
+            <strong>quince</strong>
+            <em>15 (KEEN-the)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('quince')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('quince')">🎤</button>
+          </div>
+        </div>
+
+        <div class="number-card">
+          <div class="number-text">
+            <strong>dieciséis</strong>
+            <em>16 (dye-thee-SAYS)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('dieciséis')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('dieciséis')">🎤</button>
+          </div>
+        </div>
+
+        <div class="number-card">
+          <div class="number-text">
+            <strong>diecisiete</strong>
+            <em>17 (dye-thee-SYEH-te)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('diecisiete')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('diecisiete')">🎤</button>
+          </div>
+        </div>
+
+        <div class="number-card">
+          <div class="number-text">
+            <strong>dieciocho</strong>
+            <em>18 (dye-thee-OH-cho)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('dieciocho')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('dieciocho')">🎤</button>
+          </div>
+        </div>
+
+        <div class="number-card">
+          <div class="number-text">
+            <strong>diecinueve</strong>
+            <em>19 (dye-thee-NWAY-be)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('diecinueve')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('diecinueve')">🎤</button>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="section-subtitle">Tens (20-90)</h3>
+      <div class="number-grid">
+        <div class="number-card">
+          <div class="number-text">
+            <strong>veinte</strong>
+            <em>20 (BAYN-teh)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('veinte')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('veinte')">🎤</button>
+          </div>
+        </div>
+
+        <div class="number-card">
+          <div class="number-text">
+            <strong>treinta</strong>
+            <em>30 (TREIN-tah)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('treinta')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('treinta')">🎤</button>
+          </div>
+        </div>
+
+        <div class="number-card">
+          <div class="number-text">
+            <strong>cuarenta</strong>
+            <em>40 (kwa-REN-tah)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('cuarenta')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('cuarenta')">🎤</button>
+          </div>
+        </div>
+
+        <div class="number-card">
+          <div class="number-text">
+            <strong>cincuenta</strong>
+            <em>50 (seen-KWEN-tah)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('cincuenta')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('cincuenta')">🎤</button>
+          </div>
+        </div>
+
+        <div class="number-card">
+          <div class="number-text">
+            <strong>sesenta</strong>
+            <em>60 (seh-SEN-tah)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('sesenta')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('sesenta')">🎤</button>
+          </div>
+        </div>
+
+        <div class="number-card">
+          <div class="number-text">
+            <strong>setenta</strong>
+            <em>70 (seh-TEN-tah)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('setenta')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('setenta')">🎤</button>
+          </div>
+        </div>
+
+        <div class="number-card">
+          <div class="number-text">
+            <strong>ochenta</strong>
+            <em>80 (oh-CHEN-tah)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('ochenta')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('ochenta')">🎤</button>
+          </div>
+        </div>
+
+        <div class="number-card">
+          <div class="number-text">
+            <strong>noventa</strong>
+            <em>90 (noh-BEN-tah)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('noventa')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('noventa')">🎤</button>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="section-subtitle">Hundreds & Thousands</h3>
+      <div class="number-grid">
+        <div class="number-card">
+          <div class="number-text">
+            <strong>cien</strong>
+            <em>100 (SYEN)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('cien')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('cien')">🎤</button>
+          </div>
+        </div>
+
+        <div class="number-card">
+          <div class="number-text">
+            <strong>doscientos</strong>
+            <em>200 (dos-SYEN-tos)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('doscientos')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('doscientos')">🎤</button>
+          </div>
+        </div>
+
+        <div class="number-card">
+          <div class="number-text">
+            <strong>trescientos</strong>
+            <em>300 (tress-SYEN-tos)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('trescientos')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('trescientos')">🎤</button>
+          </div>
+        </div>
+
+        <div class="number-card">
+          <div class="number-text">
+            <strong>cuatrocientos</strong>
+            <em>400 (kwah-tro-SYEN-tos)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('cuatrocientos')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('cuatrocientos')">🎤</button>
+          </div>
+        </div>
+
+        <div class="number-card">
+          <div class="number-text">
+            <strong>quinientos</strong>
+            <em>500 (kee-NYEN-tos)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('quinientos')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('quinientos')">🎤</button>
+          </div>
+        </div>
+
+        <div class="number-card">
+          <div class="number-text">
+            <strong>seiscientos</strong>
+            <em>600 (says-SYEN-tos)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('seiscientos')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('seiscientos')">🎤</button>
+          </div>
+        </div>
+
+        <div class="number-card">
+          <div class="number-text">
+            <strong>setecientos</strong>
+            <em>700 (seh-teh-SYEN-tos)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('setecientos')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('setecientos')">🎤</button>
+          </div>
+        </div>
+
+        <div class="number-card">
+          <div class="number-text">
+            <strong>ochocientos</strong>
+            <em>800 (oh-cho-SYEN-tos)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('ochocientos')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('ochocientos')">🎤</button>
+          </div>
+        </div>
+
+        <div class="number-card">
+          <div class="number-text">
+            <strong>novecientos</strong>
+            <em>900 (noh-beh-SYEN-tos)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('novecientos')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('novecientos')">🎤</button>
+          </div>
+        </div>
+
+        <div class="number-card">
+          <div class="number-text">
+            <strong>mil</strong>
+            <em>1000 (MEEL)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('mil')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('mil')">🎤</button>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="section-subtitle">Examples with decimals</h3>
+      <div class="phrase-grid">
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>dos con veinte</strong>
+            <em>€2.20 (doss kon BANE-teh)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('dos con veinte')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('dos con veinte')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>cinco con cincuenta</strong>
+            <em>€5.50 (SEEN-ko kon seen-KWEN-tah)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('cinco con cincuenta')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('cinco con cincuenta')">🎤</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Key Phrases Section -->
+    <div id="phrases" class="tab-section hidden">
+      <h2 class="section-title">🗣️ Useful Phrases</h2>
+
+      <h3 class="section-subtitle">Common expressions</h3>
+      <div class="phrase-grid">
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>¡Hola!</strong>
+            <em>Hello (OH-lah)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('Hola')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('Hola')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>¡Aúpa!</strong>
+            <em>Hello (Bilbao) (ow-PAH)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('Aúpa')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('Aúpa')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>Kaixo</strong>
+            <em>Hello (Basque) (KAI-sho)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('Kaixo')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('Kaixo')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>Agur</strong>
+            <em>Goodbye (ah-GOOR)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('Agur')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('Agur')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>por favor</strong>
+            <em>please (por fah-VOR)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('por favor')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('por favor')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>gracias</strong>
+            <em>thank you (GRAH-syahs)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('gracias')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('gracias')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>perdona</strong>
+            <em>excuse me / sorry (pehr-DOH-nah)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('perdona')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('perdona')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>vale</strong>
+            <em>okay (BAH-leh)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('vale')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('vale')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>sí</strong>
+            <em>yes (SEE)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('sí')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('sí')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>no</strong>
+            <em>no (NO)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('no')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('no')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>no entiendo</strong>
+            <em>I don't understand (noh en-TYEN-doh)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('no entiendo')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('no entiendo')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>Eskerrik asko</strong>
+            <em>Thank you (Basque) (es-KEH-rreek AH-sko)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('Eskerrik asko')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('Eskerrik asko')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>On egin</strong>
+            <em>Enjoy your meal (Basque) (ON eh-GEEN)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('On egin')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('On egin')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>¡Que aproveche!</strong>
+            <em>Enjoy your meal (keh ah-pro-VEH-cheh)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('¡Que aproveche!')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('¡Que aproveche!')">🎤</button>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="section-subtitle">Paying</h3>
+      <div class="phrase-grid">
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>¿Cuánto es?</strong>
+            <em>How much is it? (KWAN-toh ehs)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('¿Cuánto es?')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('¿Cuánto es?')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>¿Puedo pagar con tarjeta o efectivo?</strong>
+            <em>Can I pay with card or cash? (PWEH-doh pah-GAR kon tar-HEH-ta oh eh-fek-TEE-bo)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('¿Puedo pagar con tarjeta o efectivo?')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('¿Puedo pagar con tarjeta o efectivo?')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>Cuando puedas, me cobras</strong>
+            <em>When you can, charge me (KWAN-doh PWEH-das meh KOH-bras)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('Cuando puedas, me cobras')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('Cuando puedas, me cobras')">🎤</button>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="section-subtitle">Asking about ingredients</h3>
+      <div class="phrase-grid">
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>¿Qué lleva esto?</strong>
+            <em>What's in this? (keh YEH-bah EHS-toh)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('¿Qué lleva esto?')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('¿Qué lleva esto?')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>¿Hay pintxos vegetarianos?</strong>
+            <em>Are there vegetarian pintxos? (ai PEEN-chos beh-heh-tah-RYAH-nos)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('¿Hay pintxos vegetarianos?')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('¿Hay pintxos vegetarianos?')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>¿Hay pintxos veganos?</strong>
+            <em>Are there vegan pintxos? (ai PEEN-chos beh-GAH-nos)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('¿Hay pintxos veganos?')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('¿Hay pintxos veganos?')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>¿Lleva cerdo?</strong>
+            <em>Does it have pork? (YEH-bah THER-doh)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('¿Lleva cerdo?')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('¿Lleva cerdo?')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>¿Lleva lácteos?</strong>
+            <em>Does it have dairy? (YEH-bah LAHK-teh-oss)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('¿Lleva lácteos?')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('¿Lleva lácteos?')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>¿Lleva frutos secos?</strong>
+            <em>Does it have nuts? (YEH-bah FROO-toss SEH-koss)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('¿Lleva frutos secos?')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('¿Lleva frutos secos?')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>¿Es picante?</strong>
+            <em>Is it spicy? (ess pee-KAHN-teh)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('¿Es picante?')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('¿Es picante?')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>¿Hay pintxo pote?</strong>
+            <em>Is there pintxo pote? (ai PEEN-cho PO-te)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('¿Hay pintxo pote?')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('¿Hay pintxo pote?')">🎤</button>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="section-subtitle">Ordering</h3>
+      <div class="phrase-grid">
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>¿Me das...?</strong>
+            <em>Can I have...? (meh DAS)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('¿Me das...?')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('¿Me das...?')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>¿Me pones...?</strong>
+            <em>Can I have...? (meh POH-nes)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('¿Me pones...?')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('¿Me pones...?')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>¿Lleva...?</strong>
+            <em>Does it have...? (YEH-bah)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('¿Lleva...?')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('¿Lleva...?')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>Hay...</strong>
+            <em>Is there...? (ai)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('Hay...')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('Hay...')">🎤</button>
+          </div>
+        </div>
+
+        <div class="phrase-card">
+          <div class="phrase-text">
+            <strong>¿Cuánto es...?</strong>
+            <em>How much is...? (KWAN-toh ehs)</em>
+          </div>
+          <div class="phrase-actions">
+            <button class="play-btn" onclick="playAudio('¿Cuánto es...?')">▶</button>
+            <button class="practice-btn" onclick="checkPronunciation('¿Cuánto es...?')">🎤</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="explanation-box">
+        <p><strong>Pintxo pote:</strong> A "happy hour" tradition where you get a pintxo and a drink at a reduced price, typically on Thursdays (varies by area).</p>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    Hecho con ❤️ (& txakoli) Nubele🌬️
+  </footer>
+
+  <script>
+    // ============= VOICE RECOGNITION =============
+    let currentRecognition = null;
+    let activePracticeButton = null;
+
+    function checkPronunciation(expectedPhrase) {
+      // Check browser support
+      if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+        showFeedback("❌", 'error');
+        return;
+      }
+
+      // Stop any ongoing recognition
+      if (currentRecognition) {
+        currentRecognition.stop();
+      }
+
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const recognition = new SpeechRecognition();
+      currentRecognition = recognition;
+      
+      recognition.lang = 'es-ES';
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
+
+      // Set the active button for visual feedback
+      activePracticeButton = event.currentTarget;
+      activePracticeButton.classList.add('listening');
+
+      recognition.onresult = function(event) {
+        const spokenPhrase = event.results[0][0].transcript.trim();
+        const normalizedSpoken = spokenPhrase.toLowerCase().replace(/[.,¿?¡!]/g, '');
+        const normalizedExpected = expectedPhrase.toLowerCase().replace(/[.,¿?¡!]/g, '');
+
+        if (normalizedSpoken === normalizedExpected) {
+          showFeedback("✅", 'success');
+        } else {
+          showFeedback("❌", 'error');
+        }
+        
+        if (activePracticeButton) {
+          activePracticeButton.classList.remove('listening');
+          activePracticeButton = null;
+        }
+      };
+
+      recognition.onerror = function(event) {
+        showFeedback("❌", 'error');
+        
+        if (activePracticeButton) {
+          activePracticeButton.classList.remove('listening');
+          activePracticeButton = null;
+        }
+      };
+
+      recognition.onend = function() {
+        if (activePracticeButton) {
+          activePracticeButton.classList.remove('listening');
+          activePracticeButton = null;
+        }
+      };
+
+      try {
+        recognition.start();
+      } catch (err) {
+        showFeedback("❌", 'error');
+      }
+    }
+
+    function showFeedback(message, type) {
+      const existingFeedback = document.querySelector('.feedback-message');
+      if (existingFeedback) {
+        existingFeedback.remove();
+      }
+
+      const feedbackDiv = document.createElement('div');
+      feedbackDiv.className = `feedback-message feedback-${type}`;
+      feedbackDiv.textContent = message;
+      document.body.appendChild(feedbackDiv);
+
+      setTimeout(() => {
+        feedbackDiv.remove();
+      }, 2000);
+    }
+
+    // ============= AUDIO PLAYBACK =============
+    function playAudio(text) {
+      responsiveVoice.speak(text, "Spanish Female", {
+        rate: 0.85,
+        pitch: 1,
+        volume: 1,
+        onstart: function() {
+          const playBtn = event.currentTarget;
+          playBtn.classList.add('listening');
+        },
+        onend: function() {
+          const playBtn = event.currentTarget;
+          playBtn.classList.remove('listening');
+        }
+      });
+    }
+
+    // Tab navigation
+    document.querySelectorAll(".nav-tab").forEach(link => {
+      link.addEventListener("click", e => {
+        e.preventDefault();
+        const target = link.dataset.target;
+        
+        document.querySelectorAll(".tab-section").forEach(s => {
+          s.classList.add("hidden");
+        });
+        
+        document.getElementById(target).classList.remove("hidden");
+        document.querySelectorAll(".nav-tab").forEach(l => l.classList.remove("active"));
+        link.classList.add("active");
+        window.scrollTo({top: 0, behavior: 'smooth'});
+      });
+    });
+
+    // Check for Web Speech API support on load
+    document.addEventListener('DOMContentLoaded', function() {
+      if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+        const warning = document.createElement('div');
+        warning.className = 'compatibility-warning';
+        warning.textContent = '⚠️ Voice recognition works best on Google Chrome or Microsoft Edge.';
+        document.body.appendChild(warning);
+      }
+    });
+  </script>
+</body>
+</html>
